@@ -1,10 +1,10 @@
 #!/bin/sh
 #
 #
-#    Manage Secondary Private IP with Pacemaker
+#  Manage Hetzner Cloud alias IPs with Pacemaker
 #
 #
-# Copyright 2021 Joerg Frede <frede@b1-systems.de>
+# Copyright 2023 Joerg Frede <frede@b1-systems.de>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,8 +36,6 @@
 . ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
 
 #######################################################################
-
-#set -x
 
 #
 # Defaults
