@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# External STONITH module for Hetzner Cloud.
+#
+
+# Copyright 2023 Joerg Frede <frede@b1-systems.de>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
+
+#
+#  Prerequisites:
+#
+#  - preconfigured hcloud (registerd api Key)
+#  - Hetzner Cloud role with the following permissions:
+#    * read
+#    * write
+#
+
+if [ -z "$hcbin" ] ; then
+	HCLOUD=/usr/local/bin/hcloud
+else
+	HCLOUD="$hcbin"
+fi
+
+case $1 in
+        get*) ;; # don't print errors if conf_file not present
+        *)
+            if [ -z "$hostname" ] ; then
+                ha_log.sh err "Paramter hostname not set."
+                exit 1
+            fi
+        ;;
+esac
+
+if [ ! -x $HCLOUD ] ; then
+       ha_log.sh err "$HCLOUD was not found or is not executable"	
+       exit 1
+fi
+
+case $1 in
+gethosts)
+        echo $hostname
+	exit 0
+	;;
+on)
+        $HCLOUD server poweron $hostname	
+	exit $?
+	;;
+off)
+        $HCLOUD server poweroff $hostname	
+	exit $?
+	;;
+reset)
+        $HCLOUD server reset $hostname	
+        exit $?
+	;;
+status)
+        $HCLOUD server list | grep $hostname	
+        exit $?
+	;;
+getconfignames)
+	echo "hostname"
+	exit 0
+	;;
+getinfo-devid)
+	echo "Hetzner Cloud STONITH device"
+	exit 0
+	;;
+getinfo-devname)
+	echo "Hetzner Cloud STONITH external device"
+	exit 0
+	;;
+getinfo-devdescr)
+	echo "Hetzner Cloud Server reset"
+	echo "Manages the remote webservice for reset a remote server."
+	exit 0
+	;;
+getinfo-devurl)
+	echo "https://docs.hetzner.com/cloud"
+	exit 0
+	;;
+getinfo-xml)
+	cat << HETZNERXML
+<parameters>
+<parameter name="hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Hostname
+</shortdesc>
+<longdesc lang="en">
+The name of the host to be managed by this STONITH device.
+</longdesc>
+</parameter>
+
+<parameter name="hcbin" unique="1" required="0">
+<content type="string" />
+<shortdesc lang="en">
+Path to hcloud binary
+</shortdesc>
+<longdesc lang="en">
+The path to the hcloud executable.
+</longdesc>
+</parameter>
+</parameters>
+HETZNERXML
+	exit 0
+	;;
+*)
+	ha_log.sh err "Don't know what to do for '$hostname'"
+	exit 1
+	;;
+esac
