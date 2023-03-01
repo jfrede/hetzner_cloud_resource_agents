@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #
-#    Manage Secondary Private IP with Pacemaker
+#  Manage Hetzner Cloud floating IP with Pacemaker
 #
 #
 # Copyright 2021 Joerg Frede <frede@b1-systems.de>
@@ -36,8 +36,6 @@
 . ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
 
 #######################################################################
-
-#set -x
 
 #
 # Defaults
